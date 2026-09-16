@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settlement Prover — CWI</title>
+<meta name="description" content="Verify agent-to-agent payment settlement on-chain: tx existence, success, amount match, recipient match, confirmations. Machine-readable proofs for agents.">
+<meta property="og:title" content="Settlement Prover — CWI">
+<meta property="og:description" content="Turn 'trust me, it paid' into checkable proof.">
+<style>
+:root{--bg:#0b0e14;--panel:#121826;--line:#232c44;--txt:#e8ecf5;--mut:#9aa5bd;--acc:#7c5cff;--ok:#2fbf71;--warn:#f5a524;--bad:#f31260;--unk:#8a93a8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;align-items:center;gap:12px;margin:8px 0 4px}
+.logo{width:42px;height:42px;border-radius:50%;background:conic-gradient(from 40deg,#7c5cff,#00d4ff,#7c5cff);display:flex;align-items:center;justify-content:center;font-weight:800}
+h1{font-size:22px;margin:0} .tag{color:var(--mut);font-size:14px;margin:2px 0 18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
+input,select{width:100%;background:#0b0e14;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px;font-size:15px}
+.row{display:grid;grid-template-columns:1fr 110px;gap:10px}
+button.primary{width:100%;margin-top:16px;background:var(--acc);border:0;color:#fff;font-weight:700;font-size:16px;padding:14px;border-radius:12px;cursor:pointer}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);padding:10px 14px;border-radius:10px;cursor:pointer;font-size:14px;margin-top:10px}
+button:disabled{opacity:.5;cursor:wait}
+.verdict{font-size:26px;font-weight:800;letter-spacing:.5px;margin:6px 0}
+.v-SETTLED{color:var(--ok)}.v-PENDING{color:var(--warn)}.v-FAILED,.v-MISMATCH,.v-NOT_FOUND{color:var(--bad)}.v-RATE_LIMITED,.v-UNSUPPORTED,.v-INVALID_CLAIM{color:var(--unk)}
+.check{display:grid;grid-template-columns:26px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.dot{width:14px;height:14px;border-radius:50%;margin-top:4px}
+.d-pass{background:var(--ok)}.d-fail{background:var(--bad)}.d-unknown{background:var(--unk)}
+.kv{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--mut);word-break:break-all;margin-top:4px}
+.kv b{color:var(--txt)} .note{color:var(--mut);font-size:13px;margin-top:4px}
+pre{background:#0b0e14;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:12px;max-height:320px}
+.limits li{margin:8px 0;font-size:14px;color:var(--mut)} .limits b{color:var(--txt)}
+.hint{font-size:13px;color:var(--mut)}
+footer{margin-top:30px;font-size:12.5px;color:var(--mut);text-align:center}
+a{color:#9d8cff}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="logo">CWI</div><h1 data-i18n="title">Settlement Prover</h1></header>
+<p class="tag" data-i18n="tagline">Turn "trust me, it paid" into checkable proof.</p>
+
+<div class="card">
+  <label data-i18n="chain_label">Chain</label>
+  <select id="chain"><option value="base">Base</option><option value="ethereum">Ethereum</option></select>
+  <label data-i18n="txhash_label">Transaction hash</label>
+  <input id="hash" data-i18n-ph="txhash_placeholder" placeholder="0x… (64 hex chars)" spellcheck="false" autocomplete="off">
+  <div class="row">
+    <div><label data-i18n="amount_label">Expected amount (optional)</label>
+    <input id="amount" data-i18n-ph="amount_placeholder" placeholder="e.g. 0.05" inputmode="decimal"></div>
+    <div><label>Unit</label><select id="unit"><option value="eth">ETH</option><option value="wei">wei</option></select></div>
+  </div>
+  <label data-i18n="recipient_label">Expected recipient (optional)</label>
+  <input id="to" data-i18n-ph="recipient_placeholder" placeholder="0x…" spellcheck="false" autocomplete="off">
+  <label data-i18n="memo_label">Invoice / memo reference (optional)</label>
+  <input id="memo" placeholder="e.g. x402 session #1234">
+  <button class="primary" id="go" data-i18n="prove_button">Prove settlement</button>
+  <button class="ghost" id="demo" data-i18n="try_demo">Try a real Base transaction</button>
+</div>
+
+<div class="card" id="result" hidden>
+  <div class="verdict" id="verdict"></div>
+  <div class="hint" id="meta"></div>
+  <div id="checks"></div>
+  <div id="finality" class="note"></div>
+  <p><a id="explorer" target="_blank" rel="noopener">View on block explorer ↗</a></p>
+  <button class="ghost" id="share" data-i18n="share_button">Copy share link</button>
+</div>
+
+<div class="card" id="jsoncard" hidden>
+  <h3 style="margin:0 0 8px" data-i18n="json_title">Machine-readable proof (for agents)</h3>
+  <pre id="json"></pre>
+  <p class="hint">Schema: <a href="./schema/proofs.schema.json" target="_blank">cwi.settlement-proof/1.0</a> · Deep link: <span class="kv">?proof=&lt;chain&gt;:&lt;txhash&gt;[&amp;amount=&lt;eth&gt;][&amp;to=&lt;0x…&gt;]</span></p>
+</div>
+
+<div class="card limits">
+  <h3 style="margin:0 0 8px" data-i18n="limits_title">Honest limits</h3>
+  <ul>
+    <li><b>Public RPCs only.</b> We query free public endpoints (no API keys). If they're rate-limited, we say so — we never fabricate data.</li>
+    <li><b>Native transfers in v1.</b> Token (ERC-20) and contract-call amounts are not decoded; contract interactions return <b>UNSUPPORTED</b>, not a guess.</li>
+    <li><b>Confirmations are probabilistic.</b> 12+ is the common exchange heuristic, not a guarantee — reorg risk never reaches zero, and Base finality also depends on L1 batching.</li>
+    <li><b>We verify the chain, not the deal.</b> A SETTLED verdict proves value moved on-chain as claimed — not that the goods were delivered or the invoice was legitimate.</li>
+    <li><b>Not financial advice.</b> This is a verification tool, not investment guidance.</li>
+  </ul>
+</div>
+
+<footer>Cumulative Web Inc · Settlement Prover v1.0.0 · <span data-i18n="demo_note">Demo uses a real, independently verifiable Base mainnet transaction observed 2026-09-16.</span></footer>
+</div>
+
+<script src="./prover.js"></script>
+<script src="https://cumulativewebinc.github.io/cwi-i18n/i18n.js" data-app="settlement-prover"></script>
+<script>
+(function(){
+var P = window.CWISettlementProver;
+var $ = function(id){ return document.getElementById(id); };
+var DEMO = { chain:"base", hash:"0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df", amount:"0.173503114619109366", unit:"eth", to:"0x7945dd00e71915eb4d8ae722418dcc8ff62509a3" };
+
+function verdictLabel(v){ var k="verdict_"+v; var el=document.querySelector('[data-i18n="'+k+'"]'); return (el&&el.textContent)||v.replace(/_/g," "); }
+
+function render(proof){
+  var card=$("result"); card.hidden=false;
+  var v=$("verdict"); v.textContent="● "+verdictLabel(proof.verdict); v.className="verdict v-"+proof.verdict;
+  $("meta").textContent="Observed "+proof.observedAt+" · "+proof.claim.chain+" · "+proof.claim.hash.slice(0,18)+"…";
+  var html="";
+  proof.checks.forEach(function(c){
+    html+='<div class="check"><div class="dot d-'+c.result+'"></div><div><b>'+esc(c.label)+'</b> — '+c.result.toUpperCase()+
+      (c.expected!==undefined?'<div class="kv">expected: <b>'+esc(c.expected)+'</b></div>':"")+
+      (c.actual!==undefined?'<div class="kv">actual: <b>'+esc(c.actual)+'</b></div>':"")+
+      (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+'</div></div>';
+  });
+  $("checks").innerHTML=html;
+  $("finality").textContent = proof.finality ? ("Finality: "+proof.finality.confirmations+" confirmations ("+proof.finality.assessment+"). "+(proof.finality.note||"")) : "";
+  if(proof.errors){ $("finality").textContent += " Endpoints tried: "+proof.errors.length+"."; }
+  var ex=$("explorer"); if(proof.explorerUrl){ ex.href=proof.explorerUrl; ex.style.display=""; } else ex.style.display="none";
+  $("json").textContent=JSON.stringify(proof,null,2);
+  $("jsoncard").hidden=false;
+  card.scrollIntoView({behavior:"smooth",block:"start"});
+  window._lastProof=proof;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+function readForm(){
+  var amount=$("amount").value.trim(), unit=$("unit").value;
+  var wei = amount ? (unit==="wei" ? (/^\d+$/.test(amount)?amount:null) : P.parseEthToWei(amount)) : null;
+  return { chain:$("chain").value, hash:$("hash").value.trim(), amountRaw:amount,
+    expectedAmountWei: wei, expectedTo:$("to").value.trim()||null, memo:$("memo").value.trim()||null };
+}
+
+function run(claim){
+  if(claim.amountRaw && !claim.expectedAmountWei){ alert("Amount not parseable as "+$("unit").value.toUpperCase()+"."); return; }
+  if(claim.expectedTo && !P.isAddress(claim.expectedTo)){ alert("Recipient is not a valid 0x address."); return; }
+  var go=$("go"); go.disabled=true; go.innerHTML='<span class="spinner"></span>Checking public RPCs…';
+  P.proveSettlement(claim).then(function(proof){
+    go.disabled=false; go.setAttribute("data-i18n","prove_button"); go.textContent=document.querySelector('[data-i18n="prove_button"]')?go.textContent:"Prove settlement";
+    render(proof);
+  }).catch(function(e){
+    go.disabled=false;
+    alert("Lookup failed: "+(e&&e.message||e)+". The RPCs may be unreachable from your network — try again.");
+  });
+}
+
+$("go").addEventListener("click",function(){ run(readForm()); });
+$("demo").addEventListener("click",function(){
+  $("chain").value=DEMO.chain; $("hash").value=DEMO.hash; $("amount").value=DEMO.amount; $("unit").value=DEMO.unit; $("to").value=DEMO.to; $("memo").value="";
+  run(readForm());
+});
+$("share").addEventListener("click",function(){
+  var p=window._lastProof; if(!p) return;
+  var url=location.origin+location.pathname+"?proof="+P.serializeProofParam(p.claim)+
+    ($("amount").value.trim()?"&amount="+encodeURIComponent($("amount").value.trim()):"")+
+    ($("to").value.trim()?"&to="+encodeURIComponent($("to").value.trim()):"");
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(function(){ $("share").textContent="Copied ✓"; setTimeout(function(){$("share").textContent="Copy share link";},1500); })
+  .catch(function(){ prompt("Copy this link:",url); });
+});
+
+// ?proof= deep link
+try{
+  var q=new URLSearchParams(location.search), pr=q.get("proof");
+  if(pr){ var parsed=P.parseProofParam(pr);
+    if(parsed){ $("chain").value=parsed.chain; $("hash").value=parsed.hash;
+      var a=q.get("amount"); if(a){$("amount").value=a;}
+      var t=q.get("to"); if(t){$("to").value=t;}
+      run(readForm());
+    }
+  }
+}catch(e){}
+})();
+</script>
+</body>
+</html>
