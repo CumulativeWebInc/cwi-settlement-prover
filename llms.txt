@@ -1,0 +1,26 @@
+# Settlement Prover
+> Proof layer for agent-to-agent payment settlement — paste a payment claim, verify it against public chain data. No keys, public RPCs only.
+
+Settlement verification for agent payments: checks a claimed payment (chain, tx hash, amount, recipient) against public RPC data for exists / status / amount / recipient / confirmations. Verdicts: SETTLED / PENDING / FAILED / NOT_FOUND / MISMATCH / RATE_LIMITED / INVALID_CLAIM / UNSUPPORTED. Keyless — public RPCs, multi-endpoint failover.
+
+## Live
+- App: https://cumulativewebinc.github.io/cwi-settlement-prover/
+- Try it: https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df
+
+## Features
+- Base + Ethereum via public RPCs (no keys)
+- Wei-exact amount + recipient checks
+- Probabilistic finality assessment
+- ?proof=<chain>:<txhash> deep links
+- cwi.settlement-proof/1.0 machine-readable receipts
+- 29/29 tests (fixtures, deterministic)
+
+## Machine-readable
+- demo_proof: https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df
+- schema: https://cumulativewebinc.github.io/cwi-settlement-prover/schema/proofs.schema.json
+
+## Honest limits
+v1 proves native transfers only (contract interactions → UNSUPPORTED). SETTLED proves value moved on-chain as claimed — not that goods were delivered. Not financial advice.
+
+## Provider
+Cumulative Web Inc — hp@cumulativeweb.com

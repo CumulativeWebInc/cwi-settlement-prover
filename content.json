@@ -1,0 +1,29 @@
+{
+  "day": "2026-09-23",
+  "id": "os-retrofit-20",
+  "type": "os-retrofit",
+  "app": "Settlement Prover",
+  "url": "https://cumulativewebinc.github.io/cwi-settlement-prover/",
+  "media_files": [
+    "https://cumulativewebinc.github.io/cwi-settlement-prover/brand/logo.jpg"
+  ],
+  "caption": "Settlement Prover \u2014 Proof layer for agent-to-agent payment settlement \u2014 paste a payment claim, verify it against public chain data. No keys, public RPCs only. Try it: https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df",
+  "hashtags": [
+    "CumulativeWebInc",
+    "AgentDeck",
+    "AIAgents",
+    "OpenSource"
+  ],
+  "threads_text": "Settlement Prover is live from Cumulative Web Inc: Proof layer for agent-to-agent payment settlement \u2014 paste a payment claim, verify it against public chain data. No keys, public RPCs only. https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df",
+  "post_order": 1,
+  "platform_targets": [
+    "threads",
+    "x",
+    "instagram"
+  ],
+  "cta": {
+    "label": "Try it: prove a real Base settlement",
+    "url": "https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df"
+  },
+  "honest_limits": "v1 proves native transfers only (contract interactions \u2192 UNSUPPORTED). SETTLED proves value moved on-chain as claimed \u2014 not that goods were delivered. Not financial advice."
+}

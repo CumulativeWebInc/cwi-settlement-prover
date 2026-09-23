@@ -12,7 +12,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
 header{display:flex;align-items:center;gap:12px;margin:8px 0 4px}
-.logo{width:42px;height:42px;border-radius:50%;background:conic-gradient(from 40deg,#7c5cff,#00d4ff,#7c5cff);display:flex;align-items:center;justify-content:center;font-weight:800}
+.logo{width:44px;height:44px;border-radius:50%;border:2px solid #e8b23a;object-fit:cover}
 h1{font-size:22px;margin:0} .tag{color:var(--mut);font-size:14px;margin:2px 0 18px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
 label{display:block;font-size:13px;color:var(--mut);margin:12px 0 6px}
@@ -36,10 +36,41 @@ a{color:#9d8cff}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes sp{to{transform:rotate(360deg)}}
 </style>
+<link rel="canonical" href="https://cumulativewebinc.github.io/cwi-settlement-prover/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Cumulative Web Inc">
+<meta property="og:url" content="https://cumulativewebinc.github.io/cwi-settlement-prover/">
+<meta property="og:image" content="https://cumulativewebinc.github.io/cwi-settlement-prover/brand/logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Settlement Prover — Cumulative Web Inc">
+<meta name="twitter:description" content="Proof layer for agent-to-agent payment settlement — paste a payment claim, verify it against public chain data. No keys, public RPCs only.">
+<meta name="twitter:image" content="https://cumulativewebinc.github.io/cwi-settlement-prover/brand/logo.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Settlement Prover",
+  "url": "https://cumulativewebinc.github.io/cwi-settlement-prover/",
+  "description": "Proof layer for agent-to-agent payment settlement \u2014 paste a payment claim, verify it against public chain data. No keys, public RPCs only.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "browserRequirements": "Requires JavaScript",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Cumulative Web Inc",
+    "url": "https://cumulativeweb.com"
+  }
+}
+</script>
 </head>
 <body>
 <div class="wrap">
-<header><div class="logo">CWI</div><h1 data-i18n="title">Settlement Prover</h1></header>
+<header><img class="logo" src="brand/logo.jpg" alt="Cumulative Web Inc"><h1 data-i18n="title">Settlement Prover</h1></header>
 <p class="tag" data-i18n="tagline">Turn "trust me, it paid" into checkable proof.</p>
 
 <div class="card">
@@ -85,6 +116,16 @@ a{color:#9d8cff}
     <li><b>Not financial advice.</b> This is a verification tool, not investment guidance.</li>
   </ul>
 </div>
+
+
+<section class="os-cta" style="margin:36px 0 8px;padding:26px 20px;border:1px solid #e8b23a;border-radius:12px;text-align:center;background:rgba(232,178,58,.05)">
+  <h2 style="margin:0 0 8px;font-size:20px">Try Settlement Prover live</h2>
+  <p style="margin:0 0 16px;font-size:14px;opacity:.85">Proof layer for agent-to-agent payment settlement — paste a payment claim, verify it against public chain data. No keys, public RPCs only.</p>
+  <p style="margin:0;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df" style="display:inline-block;background:#e8b23a;color:#111;font-weight:700;text-decoration:none;padding:11px 22px;border-radius:8px">Try it: prove a real Base settlement</a>
+    <a href="./schema/proofs.schema.json" style="display:inline-block;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;border:1px solid #888">Machine-readable proof schema</a>
+  </p>
+</section>
 
 <footer>Cumulative Web Inc · Settlement Prover v1.0.0 · <span data-i18n="demo_note">Demo uses a real, independently verifiable Base mainnet transaction observed 2026-09-16.</span></footer>
 </div>

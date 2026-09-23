@@ -1,0 +1,27 @@
+{
+  "name": "Settlement Prover",
+  "title": "Settlement Prover",
+  "url": "https://cumulativewebinc.github.io/cwi-settlement-prover/",
+  "description": "Proof layer for agent-to-agent payment settlement \u2014 paste a payment claim, verify it against public chain data. No keys, public RPCs only.",
+  "version": "1.0.0",
+  "provider": {
+    "name": "Cumulative Web Inc",
+    "url": "https://cumulativeweb.com",
+    "contact": "hp@cumulativeweb.com"
+  },
+  "auth": "none",
+  "pricing": "free",
+  "capabilities": [
+    "Base + Ethereum via public RPCs (no keys)",
+    "Wei-exact amount + recipient checks",
+    "Probabilistic finality assessment",
+    "?proof=<chain>:<txhash> deep links",
+    "cwi.settlement-proof/1.0 machine-readable receipts",
+    "29/29 tests (fixtures, deterministic)"
+  ],
+  "honest_limits": "v1 proves native transfers only (contract interactions \u2192 UNSUPPORTED). SETTLED proves value moved on-chain as claimed \u2014 not that goods were delivered. Not financial advice.",
+  "machine_interfaces": {
+    "demo_proof": "https://cumulativewebinc.github.io/cwi-settlement-prover/?proof=base:0x0f7bc8d5adce70987d6f4cdee48421aefd69ddb18e2b52d6eaffb993f85b45df",
+    "schema": "https://cumulativewebinc.github.io/cwi-settlement-prover/schema/proofs.schema.json"
+  }
+}
