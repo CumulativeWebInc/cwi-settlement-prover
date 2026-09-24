@@ -10,5 +10,6 @@
     "name": "Cumulative Web Inc",
     "url": "https://cumulativeweb.com/"
   },
-  "description": "On-chain payment proof verifier for Base and Ethereum via public RPCs (no keys), reporting settlement states."
+  "description": "On-chain payment proof verifier for Base and Ethereum via public RPCs (no keys), reporting settlement states.",
+  "schema_version": "1.0.0"
 }
