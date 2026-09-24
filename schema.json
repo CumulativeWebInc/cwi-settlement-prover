@@ -1,0 +1,14 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Settlement Prover (#32)",
+  "url": "https://cumulativewebinc.github.io/cwi-settlement-prover/",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Web",
+  "author": {
+    "@type": "Organization",
+    "name": "Cumulative Web Inc",
+    "url": "https://cumulativeweb.com/"
+  },
+  "description": "On-chain payment proof verifier for Base and Ethereum via public RPCs (no keys), reporting settlement states."
+}
